@@ -4,17 +4,17 @@
 	"Author": "Alexis Montes",
 	"Actions": [
 		{
-			"Name": "Counter",
-			"UUID": "com.alexis-montes.github-squares.increment",
-			"Icon": "imgs/actions/counter/icon",
+			"Name": "Squares",
+			"UUID": "com.alexis-montes.github-squares.squares",
+			"Icon": "imgs/actions/squares/icon",
 			"Tooltip": "Displays a count, which increments by one on press.",
-			"PropertyInspectorPath": "ui/increment-counter.html",
+			"PropertyInspectorPath": "ui/squares.html",
 			"Controllers": [
 				"Keypad"
 			],
 			"States": [
 				{
-					"Image": "imgs/actions/counter/key",
+					"Image": "imgs/actions/squares/key",
 					"TitleAlignment": "middle"
 				}
 			]
