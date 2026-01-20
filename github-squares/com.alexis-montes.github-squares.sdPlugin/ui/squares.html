@@ -12,13 +12,13 @@
         Learn more about property inspector components at https://sdpi-components.dev/docs/components
     -->
     <sdpi-item label="Username">
-      <sdpi-textfield label="GitHub Username" setting="GitHubUsername" placeholder="Enter your GitHub username"></sdpi-textfield>  
+      <sdpi-textfield label="GitHub Username" setting="username" placeholder="Enter your GitHub username"></sdpi-textfield>  
     </sdpi-item>
     <sdpi-item label="Access Token">
-      <sdpi-textfield label="Access Token" setting="AccessToken" placeholder="Enter your GitHub access token (optional)" password></sdpi-textfield>
+      <sdpi-textfield label="Access Token" setting="accessToken" placeholder="Enter your GitHub access token (optional)" password></sdpi-textfield>
     </sdpi-item>
-    <sdpi-item label="Days Back From Today" default="0">
-        <sdpi-select setting="DaysBack">
+    <sdpi-item label="Days Back From Today">
+        <sdpi-select setting="daysBack" placeholder="Select days back">
             <option value="0">0</option>
             <option value="1">1</option>
             <option value="2">2</option>
