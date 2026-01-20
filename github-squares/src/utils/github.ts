@@ -1,4 +1,7 @@
-import { GithubContributionsResponse } from "../types/index";
+import { 
+	GithubContributionsResponse, 
+	ContributionCalendar 
+} from "../types/index";
 
 const GITHUB_GRAPHQL_URL = "https://api.github.com/graphql";
 
@@ -25,7 +28,7 @@ export const fetchContributions = async (
 	username: string,
 	token: string,
 	daysBack: number = 0
-): Promise<any> => {
+): Promise<ContributionCalendar> => {
 	if (!username) {
 		throw new Error("GitHub username is required");
 	}
