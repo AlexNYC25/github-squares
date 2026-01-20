@@ -1,5 +1,6 @@
 
 export type GithubSquaresSettings = {
-	apikey: string;
+	username: string;
+	accessToken: string;
 	daysBack: number;
 };
