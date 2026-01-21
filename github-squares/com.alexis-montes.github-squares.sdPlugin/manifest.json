@@ -7,7 +7,7 @@
 			"Name": "Squares",
 			"UUID": "com.alexis-montes.github-squares.squares",
 			"Icon": "imgs/actions/squares/icon",
-			"Tooltip": "Displays a count, which increments by one on press.",
+			"Tooltip": "Displays a square representeting your github contributions",
 			"PropertyInspectorPath": "ui/squares.html",
 			"Controllers": [
 				"Keypad"
@@ -21,10 +21,10 @@
 		}
 	],
 	"Category": "Github Squares",
-	"CategoryIcon": "imgs/plugin/category-icon",
+	"CategoryIcon": "imgs/plugin/greyscale_icon_512x512",
 	"CodePath": "bin/plugin.js",
 	"Description": "A Stream Deck plugin to display your github contributions graph on your stream deck",
-	"Icon": "imgs/plugin/marketplace",
+	"Icon": "imgs/plugin/green_icon_512x512",
 	"SDKVersion": 3,
 	"Software": {
 		"MinimumVersion": "6.9"
