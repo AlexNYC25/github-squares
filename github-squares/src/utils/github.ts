@@ -1,6 +1,7 @@
 import { 
 	GithubContributionsResponse, 
-	ContributionCalendar 
+	ContributionCalendar, 
+	ContributionDays
 } from "../types/index";
 
 const GITHUB_GRAPHQL_URL = "https://api.github.com/graphql";
@@ -36,11 +37,9 @@ export const fetchContributions = async (
 		throw new Error("GitHub token is required");
 	}
 
-	const toDate = new Date();
-	toDate.setHours(23, 59, 59, 999);
-	const fromDate = new Date();
-	fromDate.setDate(fromDate.getDate() - daysBack);
-	fromDate.setHours(0, 0, 0, 0);
+	const todaysDate = new Date();
+	const todaysDateOneYearAgo = new Date(todaysDate);
+	todaysDateOneYearAgo.setFullYear(todaysDateOneYearAgo.getFullYear() - 1);
 
 	const response = await fetch(GITHUB_GRAPHQL_URL, {
 		method: "POST",
@@ -52,8 +51,8 @@ export const fetchContributions = async (
 			query: contributionsQuery,
 			variables: {
 				login: username,
-				from: fromDate.toISOString(),
-				to: toDate.toISOString(),
+				from: todaysDateOneYearAgo.toISOString(),
+				to: todaysDate.toISOString(),
 			},
 		}),
 	});
@@ -69,4 +68,27 @@ export const fetchContributions = async (
 	}
 
 	return data.data.user.contributionsCollection.contributionCalendar;
+}
+
+export const findTheCorrectDay = (
+	calender: ContributionCalendar,
+	daysBack: number
+): ContributionDays => {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0); // Normalize to midnight
+
+	const targetDate = new Date(today);
+	targetDate.setDate(today.getDate() - daysBack);
+
+	const targetDateString = targetDate.toISOString().split('T')[0];
+
+	for (const week of calender.weeks) {
+		for (const day of week.contributionDays) {
+			if (day.date === targetDateString) {
+				return day;
+			}
+		}
+	}
+
+	return { date: '', contributionCount: 0, color: '#ebedf0' }; // Default if not found
 }
