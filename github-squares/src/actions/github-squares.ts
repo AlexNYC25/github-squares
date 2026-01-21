@@ -4,25 +4,36 @@ import
 from "@elgato/streamdeck";
 import {
 	GithubSquaresSettings, 
-	ContributionCalendar
+	ContributionCalendar,
+	ContributionDays,
 } from "../types/index";
-import { fetchContributions } from "../utils/github";
+import { fetchContributions, findTheCorrectDay } from "../utils/github";
 
 
 @action({ UUID: "com.alexis-montes.github-squares.squares" })
 export class GithubSquare extends SingletonAction<GithubSquaresSettings> {
 
-	private async fetchIfValid(settings: GithubSquaresSettings): Promise<void> {
+	private async fetchIfValid(settings: GithubSquaresSettings, ev?: WillAppearEvent<GithubSquaresSettings> | DidReceiveSettingsEvent<GithubSquaresSettings> | KeyDownEvent<GithubSquaresSettings>): Promise<void> {
 		try {
 			// Get the access token from global settings
 			const globalSettings = await streamDeck.settings.getGlobalSettings<{ accessToken?: string }>();
 			const token = globalSettings?.accessToken || settings.accessToken;
 			const daysBack = Number(settings.daysBack);
-			streamDeck.logger.info('Token available:', !!token, 'Username available:', !!settings.username, 'DaysBack valid:', !isNaN(daysBack));
 			
 			if (token && settings.username && !isNaN(daysBack)) {
 				const contributions: ContributionCalendar = await fetchContributions(settings.username, token, daysBack);
-				streamDeck.logger.info('Fetched contributions:', contributions);
+				const today: ContributionDays = findTheCorrectDay(contributions, daysBack);
+
+				if (today) {
+					const color = today.color || '#ebedf0';
+					const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144">
+						<rect width="144" height="144" fill="${color}"/>
+					</svg>`;
+					const svgBase64 = Buffer.from(svg).toString('base64');
+					ev?.action.setImage(`data:image/svg+xml;base64,${svgBase64}`);
+				} else {
+					streamDeck.logger.warn('No contribution data for today found.');
+				}
 			} else {
 				streamDeck.logger.warn('Missing token, username, or invalid daysBack - skipping fetch');
 			}
@@ -34,7 +45,7 @@ export class GithubSquare extends SingletonAction<GithubSquaresSettings> {
 	override async onWillAppear(ev: WillAppearEvent<GithubSquaresSettings>): Promise<void> {
 		const { settings } = ev.payload;
 
-		// set icon to be a grey square while loading
+		// set icon to be a grey square while loading or if settings are incomplete
 		const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144">
 			<rect width="144" height="144" fill="#8a8a8a"/>
 		</svg>`;
@@ -42,7 +53,7 @@ export class GithubSquare extends SingletonAction<GithubSquaresSettings> {
 		const svgBase64 = Buffer.from(svg).toString('base64');
 		ev.action.setImage(`data:image/svg+xml;base64,${svgBase64}`);
 		
-		// If there's no accessToken in settings but one exists in global settings, add it
+		// If there's no accessToken in settings but one exists in global settings, add it (make it easier for users)
 		if (!settings.accessToken) {
 			const globalSettings = await streamDeck.settings.getGlobalSettings<{ accessToken?: string }>();
 			if (globalSettings?.accessToken) {
@@ -50,27 +61,25 @@ export class GithubSquare extends SingletonAction<GithubSquaresSettings> {
 					...settings,
 					accessToken: globalSettings.accessToken
 				};
-				await streamDeck.settings.setGlobalSettings(updatedSettings);
+				await ev.action.setSettings(updatedSettings);
 			}
 		}
 		
-		await this.fetchIfValid(settings);
+		await this.fetchIfValid(settings, ev);
 	}
 
 	override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<GithubSquaresSettings>): Promise<void> {
 		const { settings } = ev.payload;
 		
-		// Update global settings with the new AccessToken
 		if (settings.accessToken) {
 			await streamDeck.settings.setGlobalSettings({ accessToken: settings.accessToken });
 		}
 
-		// Fetch contributions when settings change
-		await this.fetchIfValid(settings);
+		await this.fetchIfValid(settings, ev);
 	}
 
 	override async onKeyDown(ev: KeyDownEvent<GithubSquaresSettings>): Promise<void> {
 		const { settings } = ev.payload;
-		await this.fetchIfValid(settings);
+		await this.fetchIfValid(settings, ev);
 	}
 }
