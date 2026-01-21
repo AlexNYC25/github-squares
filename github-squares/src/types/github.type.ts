@@ -5,11 +5,13 @@ export type ContributionDays = {
 	color: string;
 }
 
+export type ContributionWeek = {
+	contributionDays: ContributionDays[];
+}
+
 export type ContributionCalendar = {
 	totalContributions: number;
-	weeks: {
-		contributionDays: ContributionDays[];
-	}[];
+	weeks: ContributionWeek[];
 }
 
 export type ContributionsCollection = {
